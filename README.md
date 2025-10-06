@@ -1,2 +1,6 @@
 # Projeto-NightVeil
-Night Veil é um jogo de sobrevivência zumbi com elementos inspirados nas obras de Lovecraft. Inspirado em Call Of Duty zombies, é um jogo de hordas de zumbis onde o jogador tem que sobreviver o maximo possivel (se conseguir) ou fazer o Easter Egg para salvar aquele mapa das garras das entidades.  O projeto foi desenvolvido como requisito para a disciplina de Sistemas Multimídia, ministrada pelo professor Vinicius Jose Lopes Cursino.
+Night Veil é um jogo de sobrevivência zumbi com elementos inspirados nas obras de Lovecraft. Inspirado em Call Of Duty zombies, é um jogo de hordas de zumbis onde o jogador tem que sobreviver o maximo possivel (se conseguir) ou fazer o Easter Egg para salvar aquele mapa das garras das entidades.
+
+Alunos: Thiago José Camêlo Nunes e Marcela Nascimento Lima.
+
+O projeto foi desenvolvido como requisito para a disciplina de Sistemas Multimídia, ministrada pelo professor Vinicius Jose Lopes Cursino.
