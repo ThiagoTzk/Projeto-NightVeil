@@ -1,39 +1,46 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class FirstPersonCamera : MonoBehaviour
 {
-    [Header("Referências")]
-    public Transform player;                // arraste o objeto Player (root) aqui
-    public float mouseSensitivity = 200f;   // ajuste fino no Inspector (200 é razoável)
-    [Range(0f, 90f)]
-    public float pitchLimit = 85f;          // limite vertical
+    [Header("References")]
+    public Transform player;    // Arraste o Player Root aqui
 
-    float pitch = 0f; // rotação vertical acumulada (em graus)
+    [Header("Camera Settings")]
+    public float pitchLimit = 85f;
+
+    private float pitch = 0f;
+    private GameManager gm;
 
     void Awake()
     {
-        if (player == null)
-            Debug.LogError("FirstPersonCamera: arraste o Player (root) no campo 'player' do Inspector.");
-    }
+        gm = FindObjectOfType<GameManager>();
 
-    void Start()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (player == null)
+            Debug.LogError("FirstPersonCamera: arraste o Player (root) no campo 'player'.");
+        if (gm == null)
+            Debug.LogError("FirstPersonCamera: nenhum GameManager encontrado na cena!");
     }
 
     void Update()
     {
-        // leitura do mouse (frame-independent)
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        // Se o jogo estiver pausado â†’ nÃ£o mover cÃ¢mera
+        if (gm == null || gm.IsPaused)
+            return;
 
-        // pitch (vertical) aplicado apenas na câmera (este GameObject)
+        // ObtÃ©m sensibilidade direto do GameManager
+        float sensitivity = gm.Sensitivity;
+
+        // Captura do mouse
+        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+
+        // Eixo vertical (pitch)
         pitch -= mouseY;
         pitch = Mathf.Clamp(pitch, -pitchLimit, pitchLimit);
+
         transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
-        // yaw (horizontal) aplicado no player root — isso gira o corpo inteiro
+        // Eixo horizontal (yaw)
         if (player != null)
             player.Rotate(Vector3.up * mouseX);
     }

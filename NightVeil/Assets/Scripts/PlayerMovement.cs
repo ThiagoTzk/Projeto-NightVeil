@@ -5,53 +5,98 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 5f;
-    public float jumpForce = 2f;    // pulo mais realista
-    public float gravity = -20f;    // queda mais rápida / realista
+    public float runSpeed = 8f;
+    public float jumpForce = 1.2f;
+    public float gravity = -30f;
 
-    [Header("Ground Check Settings")]
+    [Header("Ground Check")]
     public Transform groundCheck;
-    public float groundDistance = 0.2f;
+    public float groundDistance = 0.25f;
     public LayerMask groundMask;
 
-    // internal
+    [Header("References")]
+    public Animator animator;
+
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
 
+    private GameManager gm;
+
     void Awake()
     {
         controller = GetComponent<CharacterController>();
-        if (controller == null)
-            Debug.LogError("PlayerMovement precisa de um CharacterController no mesmo GameObject.");
+        gm = FindObjectOfType<GameManager>();
+
+        if (gm == null)
+            Debug.LogError("PlayerMovement: Nenhum GameManager encontrado na cena!");
     }
 
     void Update()
     {
-        // Ground check
+        // -----------------------------------------
+        //        SISTEMA DE PAUSE (ESC / P)
+        // -----------------------------------------
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            if (!gm.IsPaused) gm.PauseGame();
+            else gm.ResumeGame();
+        }
+
+        // Se pausado → interrompe movimento e animação
+        if (gm.IsPaused)
+        {
+            if (animator)
+                animator.SetFloat("Speed", 0f);
+
+            return;
+        }
+
+        // -----------------------------------------
+        //          DETECÇÃO DE CHÃO
+        // -----------------------------------------
         isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
 
         if (isGrounded && velocity.y < 0f)
-            velocity.y = -2f; // pequena força para segurar o player no chão
+            velocity.y = -2f;
 
-        // Input de movimento (relativo ao Player - Yaw)
+        // -----------------------------------------
+        //          MOVIMENTO NORMAL
+        // -----------------------------------------
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        Vector3 move = transform.right * x + transform.forward * z; // usa transform do Player (só yaw)
-        controller.Move(move * moveSpeed * Time.deltaTime);
+        Vector3 move = transform.right * x + transform.forward * z;
 
-        // Pulo (apenas quando estiver no chão)
+        float speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : moveSpeed;
+
+        controller.Move(move * speed * Time.deltaTime);
+
+        // -----------------------------------------
+        //                PULO
+        // -----------------------------------------
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
 
-        // Gravidade
+        // -----------------------------------------
+        //             GRAVIDADE
+        // -----------------------------------------
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
+
+        // -----------------------------------------
+        //        ANIMAÇÃO DO PERSONAGEM
+        // -----------------------------------------
+        if (animator)
+        {
+            float magnitude = new Vector2(x, z).magnitude;
+            animator.SetFloat("Speed", magnitude, 0.1f, Time.deltaTime);
+            animator.SetBool("IsJumping", !isGrounded);
+        }
     }
 
-    // visual helper
     void OnDrawGizmosSelected()
     {
         if (groundCheck != null)
