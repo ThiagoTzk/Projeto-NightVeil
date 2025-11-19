@@ -3,45 +3,35 @@
 public class FirstPersonCamera : MonoBehaviour
 {
     [Header("References")]
-    public Transform player;    // Arraste o Player Root aqui
+    public Transform playerBody;
 
-    [Header("Camera Settings")]
+    [Header("Settings")]
+    public float mouseSensitivity = 300f;
     public float pitchLimit = 85f;
 
-    private float pitch = 0f;
+    private float xRotation = 0f;
     private GameManager gm;
 
-    void Awake()
+    void Start()
     {
-        gm = FindObjectOfType<GameManager>();
-
-        if (player == null)
-            Debug.LogError("FirstPersonCamera: arraste o Player (root) no campo 'player'.");
-        if (gm == null)
-            Debug.LogError("FirstPersonCamera: nenhum GameManager encontrado na cena!");
+        gm = GameManager.Instance;
     }
 
     void Update()
     {
-        // Se o jogo estiver pausado → não mover câmera
-        if (gm == null || gm.IsPaused)
+        if (gm == null || !gm.IsPlaying || gm.IsPaused)
             return;
 
-        // Obtém sensibilidade direto do GameManager
-        float sensitivity = gm.Sensitivity;
+        if (Cursor.lockState != CursorLockMode.Locked)
+            return;
 
-        // Captura do mouse
-        float mouseX = Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * sensitivity * Time.deltaTime;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Eixo vertical (pitch)
-        pitch -= mouseY;
-        pitch = Mathf.Clamp(pitch, -pitchLimit, pitchLimit);
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -pitchLimit, pitchLimit);
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
 
-        transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-
-        // Eixo horizontal (yaw)
-        if (player != null)
-            player.Rotate(Vector3.up * mouseX);
+        playerBody.Rotate(Vector3.up * mouseX);
     }
 }
