@@ -20,15 +20,13 @@ public class GameManager : MonoBehaviour
     [Header("Configurações")]
     public Slider sensitivitySlider;
     public Slider volumeSlider;
+    public TextMeshProUGUI sensitivityValueText; // Novo: texto que mostra o valor
 
     [Header("Referências do Player")]
-    public GameObject playerObject; // Arraste o GameObject do jogador aqui
-    public MonoBehaviour playerMovementScript; // Script de movimento do jogador
-    public MonoBehaviour playerCameraScript; // Script da câmera
+    public GameObject playerObject;
+    public MonoBehaviour playerMovementScript;
+    public MonoBehaviour playerCameraScript;
 
-    // -------------------------
-    // VARIÁVEIS DE ESTADO
-    // -------------------------
     public bool IsPaused { get; private set; } = false;
     public bool IsPlaying { get; private set; } = false;
     public float Sensitivity { get; private set; } = 300f;
@@ -72,7 +70,7 @@ public class GameManager : MonoBehaviour
         // Cursor livre no menu
         SetCursorState(false);
 
-        // **CRUCIAL: Desativa controles do jogador no menu**
+        // Desativa controles do jogador no menu
         SetPlayerControls(false);
     }
 
@@ -115,7 +113,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        // **CRUCIAL: Ativa controles do jogador**
+        // Ativa controles do jogador
         SetPlayerControls(true);
 
         // Delay para garantir que tudo está inicializado antes de travar cursor
@@ -140,7 +138,7 @@ public class GameManager : MonoBehaviour
         hud.SetActive(false);
         Time.timeScale = 0f;
 
-        // **CRUCIAL: Desativa controles durante pausa**
+        // Desativa controles durante pausa
         SetPlayerControls(false);
         SetCursorState(false);
     }
@@ -154,7 +152,7 @@ public class GameManager : MonoBehaviour
         hud.SetActive(true);
         Time.timeScale = 1f;
 
-        // **CRUCIAL: Reativa controles**
+        // Reativa controles
         SetPlayerControls(true);
         StartCoroutine(DelayedCursorLock());
     }
@@ -175,7 +173,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        // **CRUCIAL: Desativa controles no menu**
+        // Desativa controles no menu
         SetPlayerControls(false);
         SetCursorState(false);
     }
@@ -261,7 +259,7 @@ public class GameManager : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
     }
 
@@ -280,6 +278,12 @@ public class GameManager : MonoBehaviour
         if (volumeSlider != null)
             volumeSlider.value = Volume;
 
+        // Atualiza texto da sensibilidade
+        if (sensitivityValueText != null)
+        {
+            sensitivityValueText.text = Sensitivity.ToString("F1");
+        }
+
         AudioListener.volume = Volume;
     }
 
@@ -294,6 +298,12 @@ public class GameManager : MonoBehaviour
     {
         Sensitivity = value;
         PlayerPrefs.SetFloat("sensitivity", value);
+
+        // Atualiza texto da sensibilidade
+        if (sensitivityValueText != null)
+        {
+            sensitivityValueText.text = value.ToString("F1");
+        }
     }
 
     public void ChangeVolume(float value)
